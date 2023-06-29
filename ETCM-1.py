@@ -7,7 +7,7 @@ from selenium.webdriver.common.keys import Keys
 
 
 def each_row(cells, idx):
-    # 从 cells 中根据索引读取某行的 4 个格子内的文本信息
+    # 从 cells 中根据索引读取某行的 6 个格子内的文本信息
     ChineseName = cells[idx].text.strip()
     Piyin = cells[idx + 1].text.strip()
     HerbType = cells[idx + 2].text.strip()
@@ -15,11 +15,10 @@ def each_row(cells, idx):
     HerbMeridianTropism = cells[idx + 4].text.strip()
     HerbFlavor = cells[idx + 5].text.strip()
 
-    # 从第二列中提取按钮，并读取按钮的 href 属性值（即详情页的网址）
+    # 获取中药的详情页（ href 属性值）
     btn_detailed = cells[idx].find_element(By.TAG_NAME, 'a')
     DetailedPage = btn_detailed.get_attribute('href').strip()
     arr = np.array([[ChineseName, Piyin,HerbType ,HerbProperty ,HerbMeridianTropism,HerbFlavor,DetailedPage]])
-
     return arr
 
 
@@ -27,7 +26,6 @@ def each_page():
     arr = np.empty([0, 7])
     cells = driver.find_elements(By.XPATH, '//td')
 
-    # 一页共 120 格，一行有 6 格
     # 每次循环收集一行加到 arr 中
     for i in range(0, 120, 6):
         # 先试着收集一下当前这行
@@ -53,9 +51,7 @@ driver = webdriver.Edge('msedgedriver.exe')
 # 访问 url
 driver.get(url)
 
-# 每个新页面上：先收集信息，再翻页
-# 要翻页 20 次
-# 每次循环收集一页加到 arr 中
+# 创建储存数据的空arr
 arr = np.empty([0, 7])
 for i in range(2):
     # 收集该页信息
@@ -76,4 +72,3 @@ col_names = ["ChineseName", "Piyin","HerbType","HerbProperty" ,"HerbMeridianTrop
 # 以 pandas.DataFrame 输出爬到的信息
 df_result = pd.DataFrame(data=arr, columns=col_names)
 df_result.to_excel('ETCM中药.xlsx', index=False)
-
